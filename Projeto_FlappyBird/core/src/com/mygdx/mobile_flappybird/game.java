@@ -21,7 +21,7 @@ import java.util.Random;
 
 public class game extends ApplicationAdapter
 {
-	//
+	// guarda a textura
 	private SpriteBatch batch;
 	private Texture[] passaros;
 	private Texture fundo;
@@ -33,14 +33,14 @@ public class game extends ApplicationAdapter
 	private Texture moeda2;
 	private Texture moedaAtual;
 
-	//
+	// area de colisao dos objetos
 	private ShapeRenderer shapeRenderer;
 	private Circle circuloPassaro;
 	private Rectangle retanguloCanoCima;
 	private Rectangle retanguloCanoBaixo;
 	private Circle circuloMoeda;
 
-	//
+	// config da gameplay, posicionamento de elementos, pontuaçao
 	private float larguraDispositivo;
 	private float alturaDipositivo;
 	private float variacao = 0;
@@ -62,27 +62,27 @@ public class game extends ApplicationAdapter
 	private float valorMoeda1 = 5;
 	private float valorMoeda2 = 10;
 
-	//
+	// elemetos de texto da inteface 
 	private BitmapFont textoPontuacao;
 	private BitmapFont textoReiniciar;
 	private BitmapFont textoMelhorPontuacao;
 
-	//
+	// guarda os sons 
 	private Sound somVoando;
 	private Sound somColisao;
 	private Sound somPontuacao;
 	private Sound somMoeda;
 
-	//
+	// guarda a pontuaça na memoria do dispositivo
 	private Preferences preferencias;
 
-	//
+	// camera, e tela
 	private OrthographicCamera camera;
 	private Viewport viewport;
 	private final float VIRTUAL_WIDTH = 720;
 	private final float VIRTUAL_HEIGHT = 1280;
 
-	//
+	// inicializa objetos, variaveis e assets
 	@Override
 	public void create()
 	{
@@ -90,14 +90,14 @@ public class game extends ApplicationAdapter
 		inicializaObjetos();
 	}
 
-	//
+	// roda todo o frame
 	@Override
 	public void render()
 	{
-		//
+		// limpa a tela do jogo
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		//
+		// roda a logica do jogo, desenha objetos e inteface do jogo
 		verificarEstadoJogo();
 		validarPontos();
 		desenharCena();
@@ -105,7 +105,7 @@ public class game extends ApplicationAdapter
 		detectarColisoes();
 	}
 
-	//
+	// pega referencia dos assets de textura e inicializa o array da animaçao do passaro 
 	private void inicializarTexturas()
 	{
 		passaros = new Texture[3];
@@ -124,12 +124,14 @@ public class game extends ApplicationAdapter
 		moedaAtual = moeda2;
 	}
 
-	//
+	// cria os objetos e da valor inicia as variaveis
 	private  void inicializaObjetos()
 	{
+	        // inicializa classes de utilidade
 		batch = new SpriteBatch();
 		random = new Random();
-
+                
+		// define o valor do tamanho da tela, da valor inicial das posiçoes dos objs
 		larguraDispositivo = VIRTUAL_WIDTH;
 		alturaDipositivo = VIRTUAL_HEIGHT;
 		posicaoInicialVerticalPassaro = alturaDipositivo / 2;
@@ -137,43 +139,52 @@ public class game extends ApplicationAdapter
 		espacoEntreCanos = 350;
 		posicaoMoedaY = alturaDipositivo/2;
 		posicaoMoedaX = posicaoCanoHorizontal + larguraDispositivo/2;
-
+                
+		// cria o texto que tem a pontuaçao, define cor e tamanho do texto
 		textoPontuacao = new BitmapFont();
 		textoPontuacao.setColor(Color.WHITE);
 		textoPontuacao.getData().setScale(10);
-
+		
+                // cria o texto que tem do reset, define cor e tamanho do texto
 		textoReiniciar = new BitmapFont();
 		textoReiniciar.setColor(Color.GREEN);
 		textoReiniciar.getData().setScale(2);
-
+                
+		// cria o texto que tem a Melhor Pontuacao, define cor e tamanho do texto
 		textoMelhorPontuacao = new BitmapFont();
 		textoMelhorPontuacao.setColor(Color.RED);
 		textoMelhorPontuacao.getData().setScale(2);
-
+                
+		// inicializa os colisores dos objs
 		shapeRenderer = new ShapeRenderer();
 		circuloPassaro = new Circle();
 		retanguloCanoBaixo = new Rectangle();
 		retanguloCanoCima = new Rectangle();
 		circuloMoeda = new Circle();
-
+                
+		// pega referencia dos assets de som
 		somVoando = Gdx.audio.newSound(Gdx.files.internal("som_asa.wav"));
 		somColisao = Gdx.audio.newSound(Gdx.files.internal("som_batida.wav"));
 		somPontuacao = Gdx.audio.newSound(Gdx.files.internal("som_pontos.wav"));
 		somMoeda = Gdx.audio.newSound(Gdx.files.internal("som_moeda.wav"));
-
+               
+	        // pega preferencias guardadas na memoria e a pontuaçao maxima nas preferencias
 		preferencias = Gdx.app.getPreferences("flappyBird");
 		pontuacaoMaxima = preferencias.getInteger("pontuacaoMaxima",0);
-
+                
+		// inicializa a camera no tamanho da tela
 		camera = new OrthographicCamera();
 		camera.position.set(VIRTUAL_WIDTH/2, VIRTUAL_HEIGHT/2,0);
 		viewport = new StretchViewport(VIRTUAL_WIDTH,VIRTUAL_HEIGHT, camera);
 	}
 
-	//
+	// roda a logica do jogo dependendo do estado atual
 	private  void verificarEstadoJogo()
-	{
+	{ 
+	        // detecta o toque
 		boolean toqueTela = Gdx.input.justTouched();
-
+               
+	       // antes do jogo começar. se o jogador tocar na tela o jogo inicia
 		if (estadoJogo == 0)
 		{
 			if (toqueTela)
@@ -183,6 +194,7 @@ public class game extends ApplicationAdapter
 				somVoando.play();
 			}
 		}
+		// roda a gameplay
 		else if (estadoJogo == 1)
 		{
 			if (toqueTela)
@@ -190,27 +202,34 @@ public class game extends ApplicationAdapter
 				gravidade = -15;
 				somVoando.play();
 			}
-
+			
+			// move os elementos do jogo
 			posicaoCanoHorizontal -= Gdx.graphics.getDeltaTime() * 200;
 			posicaoMoedaX -= Gdx.graphics.getDeltaTime() * 200;
-
+			
+                        // quandoo cano sai da tela ele reseta a posiçao horizontal e randomiza a posiçao. reseta o valor da variavel "passouCano"
 			if (posicaoCanoHorizontal < -canoTopo.getWidth())
 			{
 				posicaoCanoHorizontal = larguraDispositivo;
 				posicaoCanoVertical = random.nextInt(400) - 200;
 				passouCano = false;
 			}
-			// Reseta moeda
+			
+			// quando a moeda sai da tela ele randomiza a posiçao da moeda
 			if (posicaoMoedaX < -moedaAtual.getWidth() / 2 * escalaMoeda)
 			{
 				resetaMoeda();
 			}
+			
+			// quando toca ele pula  e faz a gravidade
 			if (posicaoInicialVerticalPassaro > 0 || toqueTela)
 			{
 				posicaoInicialVerticalPassaro = posicaoInicialVerticalPassaro - gravidade;
 				gravidade++;
 			}
 		}
+		
+		// tela de gameover
 		else if (estadoJogo == 2)
 		{
 			if (pontos > pontuacaoMaxima)
@@ -221,7 +240,8 @@ public class game extends ApplicationAdapter
 			}
 
 			posicaoHorizontalPassaro -= Gdx.graphics.getDeltaTime() * 500;
-
+                        
+			// reseta o jogo
 			if (toqueTela)
 			{
 				estadoJogo = 0;
@@ -235,10 +255,10 @@ public class game extends ApplicationAdapter
 		}
 	}
 
-	//
+	// gera os colisores e detecta as colisoes
 	private void detectarColisoes()
 	{
-		// Cria colisor passaro
+		// Cria e posiciona o colisor do passaro
 		circuloPassaro.set
 		(
 			posicaoHorizontalPassaro + passaros[0].getWidth() * escalaPassaro / 2,
@@ -246,14 +266,15 @@ public class game extends ApplicationAdapter
 			(passaros[0].getHeight()  * escalaPassaro) / 2
 		);
 
-		// Cria colisor moeda
+		// Cria e posiciona o colisor da moeda
 		circuloMoeda.set
 		(
 			posicaoMoedaX - ((moedaAtual.getWidth() * escalaMoeda) / 2),
 			posicaoMoedaY - ((moedaAtual.getHeight() * escalaMoeda) / 2),
 			(moedaAtual.getWidth() * escalaMoeda) / 2
 		);
-
+		
+		// cria e posiciona o colisor dos canos
 		retanguloCanoBaixo.set
 				(
 						posicaoCanoHorizontal,
@@ -269,11 +290,13 @@ public class game extends ApplicationAdapter
 						canoTopo.getWidth(),
 						canoTopo.getHeight()
 				);
-
+				
+		// detecta as colisoes 
 		boolean colidiuCanoCima  = Intersector.overlaps(circuloPassaro, retanguloCanoCima);
 		boolean colidiuCanoBaixo = Intersector.overlaps(circuloPassaro, retanguloCanoBaixo);
 		boolean colidiuMoeda 	 = Intersector.overlaps(circuloPassaro, circuloMoeda);
-
+		
+		// colidiu com a moeda adiciona pontuaçao, posiciona a moeda para fora da tela e toca o som de coletar moeda
 		if(colidiuMoeda == true)
 		{
 			if(moedaAtual == moeda1) pontos += valorMoeda1;
@@ -282,7 +305,8 @@ public class game extends ApplicationAdapter
 			posicaoMoedaY = alturaDipositivo * 2;
 			somMoeda.play();
 		}
-
+		
+		// colidiu com um dos canos, toca o som de colisao e morre
 		if (colidiuCanoBaixo || colidiuCanoCima)
 		{
 			if (estadoJogo == 1)
@@ -293,12 +317,15 @@ public class game extends ApplicationAdapter
 		}
 	}
 
-	//
+	// desenha sprites do jogo
 	private void desenharCena()
 	{
+	        // traduz coordenadas do mundo pra coordenadas da tela
 		batch.setProjectionMatrix(camera.combined);
+		
+		// permite q voce desenhe objs na tela
 		batch.begin();
-
+		
 		batch.draw(fundo,0,0,larguraDispositivo,alturaDipositivo);
 		batch.draw
 		(
@@ -337,11 +364,11 @@ public class game extends ApplicationAdapter
 				moedaAtual.getHeight() * escalaMoeda
 			);
 		}
-
+		
 		batch.end();
 	}
 
-	//
+	// desenha o que tem na interface
 	private void desenharInterface()
 	{
 		batch.setProjectionMatrix(camera.combined);
@@ -355,7 +382,8 @@ public class game extends ApplicationAdapter
 			larguraDispositivo/ 2,
 			alturaDipositivo - 110
 		);
-
+		
+		// desenha os elementos da interface dependendo do estado atual
 		switch (estadoJogo)
 		{
 			case 0:
@@ -405,7 +433,7 @@ public class game extends ApplicationAdapter
 		batch.end();
 	}
 
-	//
+	// da pontuaçao ao jogador se ele passou pelos canos e roda a animaçao do player
 	public void validarPontos()
 	{
 		if (posicaoCanoHorizontal < posicaoHorizontalPassaro)
@@ -426,7 +454,7 @@ public class game extends ApplicationAdapter
 		}
 	}
 
-	//
+	// randomiza a posiçao da moeda entre os proximos canos e randomiza o tipo da moeda
 	private void resetaMoeda()
 	{
 		posicaoMoedaX = posicaoCanoHorizontal + canoBaixo.getWidth() + moedaAtual.getWidth() + random.nextInt((int) (larguraDispositivo - (moedaAtual.getWidth() * escalaMoeda)));
@@ -443,14 +471,14 @@ public class game extends ApplicationAdapter
 		}
 	}
 
-	//
+	// redimenciona o tamanho da tela do jogo
 	@Override
 	public void resize(int width, int height)
 	{
 		viewport.update(width, height);
 	}
 
-	//
+	// memory management
 	@Override
 	public void dispose () {}
 }

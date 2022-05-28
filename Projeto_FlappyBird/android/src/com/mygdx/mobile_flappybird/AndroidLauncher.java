@@ -1,16 +1,16 @@
-package com.mygdx.game;
+package com.mygdx.mobile_flappybird;
 
 import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.mygdx.game.jogo;
+import com.mygdx.mobile_flappybird.game;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new jogo(), config);
+		initialize(new game(), config);
 	}
 }
